@@ -1,22 +1,21 @@
 import strutils, re, strscans, sugar, parseutils, sequtils, strformat, algorithm, math
-import memo
+import memo, math, terminal
+
 
 proc solve(N: int): seq[string] {.memoized.} =
   if N < 2: return @[]
   if N == 2: return @["()"]
   result.add solve(N-2).mapIt(&"({it})")
-  for n in countup(2, N - 2, 2):
+  for n in countdown(N - 2, 2, 2):
     var a = solve(n)
     var b = solve(N - n)
     var res = product(@[a, b]).mapIt(it[0] & it[1])
     result.add(res)
-  result.sort()
-  result = result.deduplicate(isSorted = true)
 
 proc parseTestCase =
   var
     caseType: string
-    caseNum: int
+    caseNum: string
     N: int
     output: seq[string]
 
@@ -25,7 +24,7 @@ proc parseTestCase =
   for testcase in f.findAll(re("#.+?\r\n\r\n", {reDotAll})):
     var lines = testcase.strip.splitLines()
 
-    if not (scanf(lines[0], "# $+ $i", caseType, caseNum)):
+    if not (scanf(lines[0], "# $+ $+", caseType, caseNum)):
       continue
 
     case caseType:
@@ -36,14 +35,14 @@ proc parseTestCase =
         stdout.write &"Test Case {caseNum}: "
         var res = solve(N)
         if res == output:
-          echo "PASS"
+          styledEcho(fgGreen, "PASS")
         else:
-          echo &"FAIL"
-          echo "actual"
+          styledEcho(fgRed, "FAIL ")
+          styledEcho(fgCyan, "actual")
           for x in res: echo x
-          echo "expect"
+          styledEcho(fgCyan, "expected")
           for x in output: echo x
-
+          styledEcho(fgDefault)
 
       else:
         raiseAssert("unknown caseType")

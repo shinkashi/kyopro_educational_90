@@ -1,4 +1,5 @@
-import strutils, re, strscans, sugar, parseutils, sequtils, strformat, algorithm, math
+import strutils, re, strscans, sugar, parseutils, sequtils, strformat, algorithm,
+    math, terminal
 
 # Split the yokan into max pieces that are all M or bigger
 proc canSplit(piece: seq[int], M: int): int =
@@ -23,7 +24,7 @@ proc solve(N, L, K: int; A: seq[int]): int =
   # dump piece
 
   let x = collect(newSeq, for m in 0..(L div (K+1)): -canSplit(piece, m))
-  dump x
+  # dump x
   return lowerBound(x, -(K+1)+1) - 1
 
 proc parseTestCase =
@@ -36,8 +37,13 @@ proc parseTestCase =
     A: seq[int]
     output: int
 
-  var f = readFile("../sample/001.txt")
+  let filename = "../sample/001.txt"
+  echo ""
+  echo &"Starting tests {filename}"
+
+  var f = readFile(filename)
   f.add "\r\n\r\n"
+
   for testcase in f.findAll(re("#.+?\r\n\r\n", {reDotAll})):
     var lines = testcase.splitLines()
 
@@ -59,13 +65,15 @@ proc parseTestCase =
         stdout.write &"Test Case {caseNum}: "
         var res = solve(N, L, K, A)
         if res == output:
-          echo "PASS"
+          styledEcho(fgGreen, "PASS")
         else:
-          echo &"FAIL actual {res}, expected {output}"
+          styledEcho(fgRed, "FAIL ", fgDefault,
+              &"actual {res}, expected {output}")
 
       else:
         raiseAssert("unknown caseType")
 
-echo "START"
+  echo "Finished tests"
+
+
 parseTestCase()
-echo "END"
