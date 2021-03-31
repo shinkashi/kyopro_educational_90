@@ -1,6 +1,7 @@
 import strutils, re, strscans, sugar, parseutils, sequtils, strformat, algorithm, math
+import memo
 
-proc solve(N: int): seq[string] =
+proc solve(N: int): seq[string] {.memoized.} =
   if N < 2: return @[]
   if N == 2: return @["()"]
   result.add solve(N-2).mapIt(&"({it})")
@@ -9,7 +10,8 @@ proc solve(N: int): seq[string] =
     var b = solve(N - n)
     var res = product(@[a, b]).mapIt(it[0] & it[1])
     result.add(res)
-
+  result.sort()
+  result = result.deduplicate(isSorted = true)
 
 proc parseTestCase =
   var
