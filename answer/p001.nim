@@ -1,15 +1,5 @@
 import strutils, re, strscans, sugar, parseutils, sequtils, strformat, algorithm, math
 
-# Checking how lowerBound() works. Nim documentation has error.
-# https://forum.nim-lang.org/t/7723
-
-# var x = [10, 20, 30, 30, 30, 40, 50]
-# dump collect(newSeq, for i, v in x: (i, v))
-# dump lowerBound(x, 30)
-# dump upperBound(x, 30)
-# quit()
-
-
 # Split the yokan into max pieces that are all M or bigger
 proc canSplit(piece: seq[int], M: int): int =
   var i = 0
