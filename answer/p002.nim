@@ -3,14 +3,6 @@ import memo, math, terminal
 
 
 proc solve(N: int): seq[string] {.memoized.} =
-  if N < 2: return @[]
-  if N == 2: return @["()"]
-  result.add solve(N-2).mapIt(&"({it})")
-  for n in countdown(N - 2, 2, 2):
-    var a = solve(n)
-    var b = solve(N - n)
-    var res = product(@[a, b]).mapIt(it[0] & it[1])
-    result.add(res)
 
 proc parseTestCase =
   var
