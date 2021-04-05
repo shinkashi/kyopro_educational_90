@@ -1,37 +1,67 @@
 import strutils, re, strscans, sugar, parseutils, sequtils, strformat, algorithm, math
 import memo, math, terminal, random, tables
 
+const MOD = 10 ^ 9 + 7
+
+type Matrix = seq[seq[int]]
+
+proc `*`(A, B: Matrix): Matrix =
+  # A[m][n], B[n][p]
+
+  assert A[0].len == B.len
+
+  let
+    m = A.len
+    n = A[0].len
+    p = B[0].len
+
+  result = newSeqWith(m, newSeqWith(p, 0))
+
+  for i in 0..<m:
+    for j in 0..<p:
+      for k in 0..<n:
+        result[i][j] += A[i][k] * B[k][j]
+        result[i][j] = result[i][j] mod MOD
+
+proc prepPowerTable(A: Matrix): seq[Matrix] =
+  var A = A
+  for i in 0..63:
+    result.add(A)
+    dump (i)
+    A = A * A
+
+proc power(A: Matrix, T: int, powerTable: seq[Matrix]): Matrix =
+  var m = A.len
+  result = newSeqWith(m, newSeqWith(m, 0))
+  for i in 0..<m: result[i][i] = 1
+
+  for i in 0..<powerTable.len:
+    if (T and (1 shl i)) != 0:
+      result = powerTable[i] * result
+
+
 proc solve(N, B, K: int; C: seq[int]): int =
 
-  proc calcMods(b: int): seq[int] =
-    var m = 1
-    for i in 1..30:
-      m = m mod b
-      # if result.len > 2 and m == result[1]:
-      #   break
-      # dump (b, i, m)
-      result.add(m)
-      m = m * 10
+  # dp[桁数][現時点でのBで割った余り] = 何通り
+  dump (N, B, K, C)
 
-  proc getMod(m: seq[int]; i: int): int = m[i]
-    # if i < m.len - 1: return m[i]
-    # return m[((i - 1) mod (m.len - 1)) + 1]
+  # build matrix A
+  var A: Matrix = newSeqWith(B, newSeqWith(B, 0))
+  for j in 0..<B:
+    for c in C:
+      let nex = (10 * j + c) mod B
+      A[j][nex] += 1
 
-  var m = calcMods(B)
-  dump m
+  # build matrix dp
+  var dp = newSeqWith(B, @[0])
+  dp[0][0] = 1
 
-  # for i in 0..10:
-  #   dump (i, getMod(m, i))
+  echo "calculating pt"
+  var pt = prepPowerTable(A)
+  echo "calculating power"
+  dp = power(A, N, pt) * dp
 
-  var cnt = 0
-  var c = C
-
-    var sum = n0 * m[0] + n1 * m[1] + n2 * m[2] + n3 * m[3] + n4 * m[4]
-    if sum mod B == 0:
-      # echo n2, n1, n0
-      cnt += 1
-
-  cnt
+  return dp[0][0]
 
 proc parseTestCase =
   var
