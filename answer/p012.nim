@@ -6,18 +6,18 @@ import memo, math, terminal, random, tables, complex, times
 proc solve(H, W, Q: int; X, Y: seq[int]; XA, YA, XB, YB: int): string =
 
   type Node = ref object
-    self: (int, int)
     parent: Node
 
-  proc makeSet(x, y: int): Node =
-    result = Node(self: (x, y))
+  proc makeSet(): Node =
+    result = Node()
     result.parent = result
 
   proc find(n: Node): Node =
     if n == n.parent:
       return n
     else:
-      find(n.parent)
+      n.parent = find(n.parent)
+      return n.parent
 
   proc union(a, b: Node) =
     var
@@ -35,7 +35,7 @@ proc solve(H, W, Q: int; X, Y: seq[int]; XA, YA, XB, YB: int): string =
   var djs = newSeqWith(H+1, newSeqWith(W+1, Node()))
   for y in 1..H:
     for x in 1..W:
-      djs[y][x] = makeSet(x, y)
+      djs[y][x] = makeSet()
 
   for y in 1..H-1:
     for x in 1..W-1:
