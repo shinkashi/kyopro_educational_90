@@ -2,7 +2,55 @@ import strutils, re, strscans, sugar, parseutils, sequtils, strformat, algorithm
 import memo, math, terminal, random, tables, complex, times
 
 #---------------------------------------------------
+
 proc solve(H, W, Q: int; X, Y: seq[int]; XA, YA, XB, YB: int): string =
+
+  type Node = ref object
+    self: (int, int)
+    parent: Node
+
+  proc makeSet(x, y: int): Node =
+    result = Node(self: (x, y))
+    result.parent = result
+
+  proc find(n: Node): Node =
+    if n == n.parent:
+      return n
+    else:
+      find(n.parent)
+
+  proc union(a, b: Node) =
+    var
+      aRoot = find(a)
+      bRoot = find(b)
+    bRoot.parent = aRoot
+
+  # build disjoint set forst
+  type Color = enum White, Red
+  var board = newSeqWith(H+1, newSeqWith(W+1, White))
+  for (x, y) in zip(X, Y): board[y][x] = Red
+
+  if board[YB][XB] == White: return "No"
+
+  var djs = newSeqWith(H+1, newSeqWith(W+1, Node()))
+  for y in 1..H:
+    for x in 1..W:
+      djs[y][x] = makeSet(x, y)
+
+  for y in 1..H-1:
+    for x in 1..W-1:
+      if board[y][x] == Red:
+        if board[y][x+1] == Red: union(djs[y][x], djs[y][x+1])
+        if board[y+1][x] == Red: union(djs[y][x], djs[y+1][x])
+
+  # check if xa,ya and xb,yb belong to the same set
+  var
+    pa = find(djs[YA][XA])
+    pb = find(djs[YB][XB])
+
+  return if pa == pb: "Yes" else: "No"
+
+proc solve_DFS(H, W, Q: int; X, Y: seq[int]; XA, YA, XB, YB: int): string =
 
   type Color = enum White, Red
 
